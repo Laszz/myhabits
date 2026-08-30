@@ -11,8 +11,8 @@ import {
   Smile, Gamepad2, Repeat, TrendingUp, Sparkles,
 } from 'lucide-react-native';
 import { useHabitStore } from '@/lib/store';
-import { addReminder, getRemindersForHabit } from '@/lib/database';
-import { scheduleHabitReminder } from '@/lib/notifications';
+import { addReminder, getRemindersForHabit, deleteReminder } from '@/lib/database';
+import { scheduleHabitReminder, cancelAllReminders } from '@/lib/notifications';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -202,6 +202,13 @@ export default function EditHabitScreen() {
       category: selectedCategory,
       frequency: freqValue,
     });
+    // Delete old reminders + cancel old notifications
+    const oldReminders = await getRemindersForHabit(db, habitId);
+    for (const r of oldReminders) {
+      await deleteReminder(db, r.id);
+    }
+    await cancelAllReminders();
+    // Schedule new reminder
     if (reminderEnabled) {
       const timeStr = formatTime(reminderHour, reminderMinute, reminderPeriod);
       await addReminder(db, habitId, timeStr);

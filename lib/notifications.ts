@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import { Platform, Alert } from 'react-native';
 import * as Notifications from 'expo-notifications';
 
 Notifications.setNotificationHandler({
@@ -60,8 +60,10 @@ export async function scheduleHabitReminder(
       },
     });
 
+    Alert.alert('Notif Debug', `Scheduled!\nID: ${id}\nTime: ${hours}:${String(minutes).padStart(2, '0')}\nChannel: reminders`);
     return id;
-  } catch {
+  } catch (e: any) {
+    Alert.alert('Notif Error', e?.message || String(e));
     return null;
   }
 }
