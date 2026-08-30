@@ -29,7 +29,7 @@ const translations = {
     other: 'Other',
 
     // Home
-    appTitle: 'Habit Streak',
+    appTitle: 'My Habit',
     todayProgress: "Today's Progress",
     habitsCompleted: (n: number, total: number) => `${n} of ${total} habits completed today`,
     progressMessage: (pct: number) => {
@@ -162,7 +162,7 @@ const translations = {
     other: 'Lainnya',
 
     // Home
-    appTitle: 'Habit Streak',
+    appTitle: 'My Habit',
     todayProgress: 'Progress Hari Ini',
     habitsCompleted: (n: number, total: number) => `${n} dari ${total} habit selesai hari ini`,
     progressMessage: (pct: number) => {
