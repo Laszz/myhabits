@@ -6,11 +6,27 @@
   "build": {
     "preview": {
       "distribution": "internal",
+      "channel": "preview",
       "android": {
         "buildType": "apk"
+      },
+      "cache": {
+        "disabled": false
       }
     },
     "production": {
+      "distribution": "store",
+      "channel": "production",
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "cache": {
+        "disabled": false
+      }
+    },
+    "production-apk": {
+      "extends": "production",
+      "distribution": "internal",
       "android": {
         "buildType": "apk"
       }

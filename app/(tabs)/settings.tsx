@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable, Alert, Linking } from 'react-native';
+import { View, Text, Pressable, Alert } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Moon, Sun, Info, Trash2, Globe, Check } from 'lucide-react-native';
 import { useThemeStore } from '@/lib/theme-store';
@@ -100,16 +100,13 @@ export default function SettingsScreen() {
         {/* About */}
         <Text style={{ fontSize: 14, fontWeight: '500', color: colors.secondaryText, marginBottom: 12, textTransform: 'uppercase' }}>{t('about')}</Text>
         <View style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: 16, overflow: 'hidden' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: colors.border }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', padding: 16 }}>
             <Info size={20} color="#64748B" />
             <View style={{ marginLeft: 12 }}>
               <Text style={{ fontSize: 16, color: colors.text }}>MyHabits</Text>
               <Text style={{ fontSize: 14, color: colors.secondaryText }}>{t('version')}</Text>
             </View>
           </View>
-          <Pressable onPress={() => Linking.openURL('https://github.com')} style={{ flexDirection: 'row', alignItems: 'center', padding: 16 }}>
-            <Text style={{ fontSize: 16, color: '#10B981' }}>{t('visitGithub')}</Text>
-          </Pressable>
         </View>
       </View>
     </View>

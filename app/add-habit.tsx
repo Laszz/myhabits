@@ -108,7 +108,6 @@ export default function AddHabitScreen() {
   const [reminderMinute, setReminderMinute] = useState(0);
   const [reminderPeriod, setReminderPeriod] = useState<'AM' | 'PM'>('AM');
   const [showFrequencyPicker, setShowFrequencyPicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
 
   const getCategoryLabel = (cat: string) => {
     const map: Record<string, string> = {
@@ -374,82 +373,77 @@ export default function AddHabitScreen() {
               </View>
             </Pressable>
 
-            {/* Time Picker */}
+            {/* Time Picker — langsung keliatan kalau reminder aktif */}
             {reminderEnabled && (
-              <Pressable
-                onPress={() => setShowTimePicker(!showTimePicker)}
-                style={{ padding: 16 }}
-              >
+              <View style={{ padding: 16 }}>
                 <Text style={{ fontSize: 12, fontWeight: '600', color: colors.secondaryText, marginBottom: 12, textTransform: 'uppercase' }}>
                   {t('pickTime')}
                 </Text>
-                {showTimePicker && (
-                  <View style={{ flexDirection: 'row', gap: 20, alignItems: 'center' }}>
-                    {/* Hours */}
-                    <View style={{ gap: 4 }}>
-                      <Text style={{ fontSize: 11, color: colors.secondaryText, textAlign: 'center', marginBottom: 4 }}>{t('hour')}</Text>
-                      <ScrollView style={{ height: 120 }} nestedScrollEnabled showsVerticalScrollIndicator={false}>
-                        {HOURS.map((h) => (
-                          <Pressable
-                            key={h}
-                            onPress={() => setReminderHour(h)}
-                            style={{
-                              paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, marginBottom: 4,
-                              backgroundColor: reminderHour === h ? '#10B981' : colors.surfaceSoft,
-                              alignItems: 'center',
-                            }}
-                          >
-                            <Text style={{ fontSize: 16, fontWeight: reminderHour === h ? '700' : '400', color: reminderHour === h ? '#FFFFFF' : colors.text }}>
-                              {h}
-                            </Text>
-                          </Pressable>
-                        ))}
-                      </ScrollView>
-                    </View>
-                    <Text style={{ fontSize: 24, fontWeight: '700', color: colors.text }}>:</Text>
-                    {/* Minutes */}
-                    <View style={{ gap: 4 }}>
-                      <Text style={{ fontSize: 11, color: colors.secondaryText, textAlign: 'center', marginBottom: 4 }}>{t('min')}</Text>
-                      <ScrollView style={{ height: 150 }} nestedScrollEnabled showsVerticalScrollIndicator={false}>
-                        {MINUTES.map((m) => (
-                          <Pressable
-                            key={m}
-                            onPress={() => setReminderMinute(Number(m))}
-                            style={{
-                              paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, marginBottom: 4,
-                              backgroundColor: reminderMinute === Number(m) ? '#10B981' : colors.surfaceSoft,
-                              alignItems: 'center',
-                            }}
-                          >
-                            <Text style={{ fontSize: 16, fontWeight: reminderMinute === Number(m) ? '700' : '400', color: reminderMinute === Number(m) ? '#FFFFFF' : colors.text }}>
-                              {m}
-                            </Text>
-                          </Pressable>
-                        ))}
-                      </ScrollView>
-                    </View>
-                    {/* AM/PM */}
-                    <View style={{ gap: 4 }}>
-                      <Text style={{ fontSize: 11, color: colors.secondaryText, textAlign: 'center', marginBottom: 4 }}>{t('period')}</Text>
-                      {(['AM', 'PM'] as const).map((p) => (
+                <View style={{ flexDirection: 'row', gap: 20, alignItems: 'center' }}>
+                  {/* Hours */}
+                  <View style={{ gap: 4 }}>
+                    <Text style={{ fontSize: 11, color: colors.secondaryText, textAlign: 'center', marginBottom: 4 }}>{t('hour')}</Text>
+                    <ScrollView style={{ height: 120 }} nestedScrollEnabled showsVerticalScrollIndicator={false}>
+                      {HOURS.map((h) => (
                         <Pressable
-                          key={p}
-                          onPress={() => setReminderPeriod(p)}
+                          key={h}
+                          onPress={() => setReminderHour(h)}
                           style={{
-                            paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8,
-                            backgroundColor: reminderPeriod === p ? '#10B981' : colors.surfaceSoft,
+                            paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, marginBottom: 4,
+                            backgroundColor: reminderHour === h ? '#10B981' : colors.surfaceSoft,
                             alignItems: 'center',
                           }}
                         >
-                          <Text style={{ fontSize: 14, fontWeight: reminderPeriod === p ? '700' : '400', color: reminderPeriod === p ? '#FFFFFF' : colors.text }}>
-                            {p}
+                          <Text style={{ fontSize: 16, fontWeight: reminderHour === h ? '700' : '400', color: reminderHour === h ? '#FFFFFF' : colors.text }}>
+                            {h}
                           </Text>
                         </Pressable>
                       ))}
-                    </View>
+                    </ScrollView>
                   </View>
-                )}
-              </Pressable>
+                  <Text style={{ fontSize: 24, fontWeight: '700', color: colors.text }}>:</Text>
+                  {/* Minutes */}
+                  <View style={{ gap: 4 }}>
+                    <Text style={{ fontSize: 11, color: colors.secondaryText, textAlign: 'center', marginBottom: 4 }}>{t('min')}</Text>
+                    <ScrollView style={{ height: 150 }} nestedScrollEnabled showsVerticalScrollIndicator={false}>
+                      {MINUTES.map((m) => (
+                        <Pressable
+                          key={m}
+                          onPress={() => setReminderMinute(Number(m))}
+                          style={{
+                            paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, marginBottom: 4,
+                            backgroundColor: reminderMinute === Number(m) ? '#10B981' : colors.surfaceSoft,
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Text style={{ fontSize: 16, fontWeight: reminderMinute === Number(m) ? '700' : '400', color: reminderMinute === Number(m) ? '#FFFFFF' : colors.text }}>
+                            {m}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </ScrollView>
+                  </View>
+                  {/* AM/PM */}
+                  <View style={{ gap: 4 }}>
+                    <Text style={{ fontSize: 11, color: colors.secondaryText, textAlign: 'center', marginBottom: 4 }}>{t('period')}</Text>
+                    {(['AM', 'PM'] as const).map((p) => (
+                      <Pressable
+                        key={p}
+                        onPress={() => setReminderPeriod(p)}
+                        style={{
+                          paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8,
+                          backgroundColor: reminderPeriod === p ? '#10B981' : colors.surfaceSoft,
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Text style={{ fontSize: 14, fontWeight: reminderPeriod === p ? '700' : '400', color: reminderPeriod === p ? '#FFFFFF' : colors.text }}>
+                          {p}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+              </View>
             )}
           </View>
         </View>

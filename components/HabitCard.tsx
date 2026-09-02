@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState, useMemo } from 'react';
-import { View, Text, Pressable, Alert, ScrollView } from 'react-native';
+import { View, Text, Pressable, Alert } from 'react-native';
 import { Flame, Check, Droplet, BookOpen, Dumbbell, Trophy, Zap, Target, Heart, Moon, Leaf, Coins, Brush, PersonStanding, Footprints, Brain, Music, Camera, Coffee, Sun, Star, Shield, Gem, Lightbulb, Palette, Scissors, Pen, Mic, Timer, Apple, GlassWater, Smile, Gamepad2, Repeat, TrendingUp, Sparkles } from 'lucide-react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { type Habit, getCheckinsForHabit90Days } from '@/lib/database';
@@ -39,30 +39,16 @@ export const HabitCard = memo(function HabitCard({ habit, onToggle, onDelete, on
     getCheckinsForHabit90Days(db, habit.id).then(setHeatmap);
   }, [db, habit.id, habit.completedToday]);
 
-  const { weeks, todayStr } = useMemo(() => {
+  const { days, todayStr } = useMemo(() => {
     const now = new Date();
     const ts = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-    const startDate = new Date(now);
-    startDate.setDate(startDate.getDate() - 364);
-    startDate.setDate(startDate.getDate() - startDate.getDay());
-
+    const y = now.getFullYear(), m = now.getMonth();
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
     const allDays: string[] = [];
-    const cursor = new Date(startDate);
-    while (cursor <= now) {
-      allDays.push(`${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`);
-      cursor.setDate(cursor.getDate() + 1);
+    for (let d = 1; d <= daysInMonth; d++) {
+      allDays.push(`${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`);
     }
-
-    const w: string[][] = [];
-    for (let i = 0; i < allDays.length; i += 7) {
-      w.push(allDays.slice(i, i + 7));
-    }
-    if (w.length > 0 && w[w.length - 1].length < 7) {
-      while (w[w.length - 1].length < 7) {
-        w[w.length - 1].push('pad-end');
-      }
-    }
-    return { weeks: w, todayStr: ts };
+    return { days: allDays, todayStr: ts }; // tgl 1 kiri atas → kanan, stabil
   }, [heatmap]);
 
   const CELL = 10;
@@ -132,46 +118,33 @@ export const HabitCard = memo(function HabitCard({ habit, onToggle, onDelete, on
           style={{
             width: 42, height: 42, borderRadius: 10,
             alignItems: 'center', justifyContent: 'center',
-            backgroundColor: habit.completedToday ? habit.color : colors.surfaceSoft,
-            borderWidth: habit.completedToday ? 0 : 1,
-            borderColor: colors.border,
+            backgroundColor: habit.completedToday ? habit.color : colors.border,
+            borderWidth: 1,
+            borderColor: habit.completedToday ? habit.color : colors.secondaryText + '40',
           }}
         >
           {habit.completedToday && <Check size={24} color="#FFFFFF" strokeWidth={3} />}
         </Pressable>
       </Pressable>
 
-      {/* Heatmap grid — scrollable, not intercepted by Pressable */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        nestedScrollEnabled
-        contentContainerStyle={{ paddingLeft: 12, paddingRight: 4, paddingBottom: 12 }}
-      >
-        <View style={{ flexDirection: 'row', gap: GAP }}>
-          {weeks.map((week, wi) => (
-            <View key={wi} style={{ gap: GAP }}>
-              {week.map((dateStr, di) => {
-                const isPad = dateStr === 'pad-end';
-                const isFuture = dateStr > todayStr;
-                const isToday = dateStr === todayStr;
-                const count = heatmap[dateStr] ?? 0;
-                return (
-                  <View
-                    key={di}
-                    style={{
-                      width: CELL, height: CELL, borderRadius: 2,
-                      backgroundColor: isPad || isFuture ? 'transparent' : getHeatColor(count, habit.color),
-                      borderWidth: isToday ? 1.5 : 0,
-                      borderColor: isToday ? habit.color : 'transparent',
-                    }}
-                  />
-                );
-              })}
-            </View>
-          ))}
-        </View>
-      </ScrollView>
+      {/* Grid penuh row-major: atas-kiri → kanan, penuh → baris bawah */}
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: GAP, paddingHorizontal: 12, paddingBottom: 12 }}>
+        {days.map((dateStr) => {
+          const isToday = dateStr === todayStr;
+          const count = heatmap[dateStr] ?? 0;
+          return (
+            <View
+              key={dateStr}
+              style={{
+                width: CELL, height: CELL, borderRadius: 2,
+                backgroundColor: getHeatColor(count, habit.color),
+                borderWidth: isToday ? 1.5 : 0,
+                borderColor: isToday ? habit.color : 'transparent',
+              }}
+            />
+          );
+        })}
+      </View>
     </View>
   );
 });

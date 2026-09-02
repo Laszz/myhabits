@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { View, Text, FlatList, RefreshControl, ScrollView, Pressable } from 'react-native';
+import { View, Text, FlatList, RefreshControl, ScrollView, Pressable, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useFocusEffect } from '@react-navigation/native';
@@ -11,17 +11,20 @@ import { EmptyState } from '@/components/EmptyState';
 import { FAB } from '@/components/FAB';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useTranslation } from '@/hooks/use-translation';
+import { getDayLabel, getMonthLabel } from '@/lib/i18n';
 
 const CATEGORY_ICONS: Record<string, React.ComponentType<any>> = {
   Health: Heart, Mind: Brain, Focus: Zap, Fitness: Dumbbell,
   Sleep: Moon, Finance: Coins, Learning: BookOpen, 'Self-Care': Smile, Productivity: Target,
 };
 
-function getDateString(): string {
+function getDateString(lang: 'en' | 'id'): string {
   const now = new Date();
+  const weekday = getDayLabel(lang, now.getDay());
+  const month = getMonthLabel(lang, now.getMonth());
   const day = now.getDate();
-  const suffix = day === 1 || day === 21 || day === 31 ? 'st' : day === 2 || day === 22 ? 'nd' : day === 3 || day === 23 ? 'rd' : 'th';
-  return `${now.toLocaleDateString('en-US', { month: 'long' })} ${day}${suffix}, ${now.getFullYear()}`;
+  // en: "Thursday, Oct 26"  id: "Kamis, 26 Okt"
+  return lang === 'id' ? `${weekday}, ${day} ${month}` : `${weekday}, ${month} ${day}`;
 }
 
 const SECTION_HEADER_H = 40;
@@ -37,7 +40,7 @@ export default function HomeScreen() {
   const toggleCheckin = useHabitStore((s) => s.toggleCheckin);
   const deleteHabit = useHabitStore((s) => s.deleteHabit);
   const colors = useThemeColors();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [refreshing, setRefreshing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
 
@@ -154,35 +157,41 @@ export default function HomeScreen() {
         }
         ListHeaderComponent={
           <>
-            {/* Top app bar */}
-            <View style={{ paddingHorizontal: 20, paddingTop: 48, paddingBottom: 16 }}>
-              <Text style={{ fontSize: 28, fontWeight: 'bold', color: colors.text }}>{t('appTitle')}</Text>
-              <Text style={{ fontSize: 14, color: colors.secondaryText, marginTop: 4 }}>{getDateString()}</Text>
+            {/* Top app bar — logo kiri (ganti foto cewek), tanpa hamburger */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 48, paddingBottom: 12 }}>
+              <Image source={require('../../assets/images/icon.png')} style={{ width: 36, height: 36, borderRadius: 18, marginRight: 10 }} />
+              <Text style={{ fontSize: 18, fontWeight: '700' }}>
+                <Text style={{ color: '#10B981' }}>Habit </Text>
+                <Text style={{ color: colors.text }}>Streak</Text>
+              </Text>
             </View>
 
-            {/* Progress card */}
+            {/* Today + date like screenshot */}
+            <View style={{ paddingHorizontal: 20, paddingBottom: 16 }}>
+              <Text style={{ fontSize: 26, fontWeight: '800', color: colors.text }}>{t('today')}</Text>
+              <Text style={{ fontSize: 14, color: colors.secondaryText, marginTop: 2 }}>{getDateString(language)}</Text>
+            </View>
+
+            {/* Progress card — mint like screenshot, adapt dark/light */}
             <View style={{ marginHorizontal: 20, marginBottom: 24 }}>
               <View
                 style={{
                   borderRadius: 20,
-                  padding: 24,
-                  backgroundColor: colors.surface,
+                  padding: 20,
+                  backgroundColor: colors.primaryLight,
                   borderWidth: 1,
                   borderColor: colors.border,
                   flexDirection: 'row',
                   alignItems: 'center',
-                  gap: 20,
+                  gap: 16,
                 }}
               >
                 <ProgressRing percentage={progress.percentage} />
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '600', color: colors.secondaryText, marginBottom: 4 }}>
-                    {t('todayProgress')}
-                  </Text>
-                  <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text }}>
+                  <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text }}>
                     {progressMsg}
                   </Text>
-                  <Text style={{ fontSize: 14, color: colors.secondaryText, marginTop: 4 }}>
+                  <Text style={{ fontSize: 13, color: colors.secondaryText, marginTop: 4, lineHeight: 18 }}>
                     {t('habitsCompleted', progress.completed, progress.total)}
                   </Text>
                 </View>
