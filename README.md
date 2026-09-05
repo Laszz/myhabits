@@ -19,7 +19,7 @@ Versi APK terbaru dapat diunduh melalui MediaFire:
 
 <p align="center">
   <a href="https://www.mediafire.com/file/sx4mh5ddvq3isaw/MyHabits.apk/file">
-    <strong>Download SaveUp APK</strong>
+    <strong>Download MyHabits APK</strong>
   </a>
 </p>
 
