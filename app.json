@@ -2,7 +2,7 @@
   "expo": {
     "name": "MyHabits",
     "slug": "MyHabits",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myhabits",
@@ -13,6 +13,7 @@
     },
     "android": {
       "package": "com.naufaln.myhabits",
+      "versionCode": 2,
       "backgroundColor": "#FFFFFF",
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {

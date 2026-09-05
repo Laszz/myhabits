@@ -10,9 +10,10 @@ import {
   Pen, Mic, Timer, Apple, GlassWater,
   Smile, Gamepad2, Repeat, TrendingUp, Sparkles,
 } from 'lucide-react-native';
+import { openSettings } from 'expo-linking';
 import { useHabitStore } from '@/lib/store';
-import { addReminder, getRemindersForHabit, deleteReminder } from '@/lib/database';
-import { scheduleHabitReminder, cancelAllReminders } from '@/lib/notifications';
+import { addReminder, getRemindersForHabit, deleteReminder, updateReminderNotificationId } from '@/lib/database';
+import { scheduleHabitReminder, cancelReminder, requestNotificationPermission, parseReminderTime, formatReminderTime24, openExactAlarmSettings } from '@/lib/notifications';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -88,7 +89,7 @@ const FREQUENCIES = [
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-const HOURS = Array.from({ length: 12 }, (_, i) => i + 1);
+const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const MINUTES = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 
 export default function EditHabitScreen() {
@@ -111,7 +112,6 @@ export default function EditHabitScreen() {
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [reminderHour, setReminderHour] = useState(8);
   const [reminderMinute, setReminderMinute] = useState(0);
-  const [reminderPeriod, setReminderPeriod] = useState<'AM' | 'PM'>('AM');
   const [showFrequencyPicker, setShowFrequencyPicker] = useState(false);
 
   useEffect(() => {
@@ -127,18 +127,14 @@ export default function EditHabitScreen() {
       } else {
         setFrequency(freq);
       }
-      // Load existing reminder
+      // Load existing reminder ("14:39" 24h + legacy "8:00 AM")
       getRemindersForHabit(db, habitId).then((reminders) => {
         if (reminders.length > 0) {
           const r = reminders[0];
           setReminderEnabled(true);
-          // Parse time string like "8:00 AM"
-          const match = r.time.match(/(\d+):(\d+)\s*(AM|PM)/i);
-          if (match) {
-            setReminderHour(Number(match[1]));
-            setReminderMinute(Number(match[2]));
-            setReminderPeriod(match[3].toUpperCase() as 'AM' | 'PM');
-          }
+          const { hours, minutes } = parseReminderTime(r.time);
+          setReminderHour(hours);
+          setReminderMinute(minutes);
         }
       });
     }
@@ -157,8 +153,23 @@ export default function EditHabitScreen() {
     setCustomDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
   };
 
-  const formatTime = (h: number, m: number, p: string) => {
-    return `${h}:${String(m).padStart(2, '0')} ${p}`;
+  const formatTime = (h: number, m: number) => formatReminderTime24(h, m);
+
+  const handleReminderToggle = async () => {
+    if (reminderEnabled) {
+      setReminderEnabled(false);
+      return;
+    }
+    const granted = await requestNotificationPermission();
+    if (!granted) {
+      Alert.alert(t('reminder'), t('reminderDenied'), [
+        { text: t('cancel'), style: 'cancel' },
+        { text: t('openSettings'), onPress: () => openSettings() },
+        { text: t('exactAlarm'), onPress: () => openExactAlarmSettings() },
+      ]);
+      return;
+    }
+    setReminderEnabled(true);
   };
 
   const getFrequencyLabel = () => {
@@ -201,17 +212,18 @@ export default function EditHabitScreen() {
       category: selectedCategory,
       frequency: freqValue,
     });
-    // Delete old reminders + cancel old notifications
+    // Delete old reminders + cancel HANYA notif habit ini (bukan semua habit)
     const oldReminders = await getRemindersForHabit(db, habitId);
     for (const r of oldReminders) {
+      if (r.notification_id) await cancelReminder(r.notification_id);
       await deleteReminder(db, r.id);
     }
-    await cancelAllReminders();
     // Schedule new reminder
     if (reminderEnabled) {
-      const timeStr = formatTime(reminderHour, reminderMinute, reminderPeriod);
-      await addReminder(db, habitId, timeStr);
-      await scheduleHabitReminder(habitId, title.trim(), timeStr);
+      const timeStr = formatTime(reminderHour, reminderMinute);
+      const reminderId = await addReminder(db, habitId, timeStr);
+      const notifId = await scheduleHabitReminder(habitId, title.trim(), timeStr);
+      await updateReminderNotificationId(db, reminderId, notifId);
     }
     router.back();
   };
@@ -390,7 +402,7 @@ export default function EditHabitScreen() {
 
             {/* Reminder Toggle */}
             <Pressable
-              onPress={() => setReminderEnabled(!reminderEnabled)}
+              onPress={handleReminderToggle}
               style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16 }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -399,7 +411,7 @@ export default function EditHabitScreen() {
                 </View>
                 <View>
                   <Text style={{ fontSize: 16, fontWeight: '500', color: colors.text }}>{t('reminder')}</Text>
-                  <Text style={{ fontSize: 14, color: colors.secondaryText }}>{reminderEnabled ? formatTime(reminderHour, reminderMinute, reminderPeriod) : t('off')}</Text>
+                  <Text style={{ fontSize: 14, color: colors.secondaryText }}>{reminderEnabled ? formatTime(reminderHour, reminderMinute) : t('off')}</Text>
                 </View>
               </View>
               <View style={{
@@ -421,9 +433,9 @@ export default function EditHabitScreen() {
                   {t('pickTime')}
                 </Text>
                 <View style={{ flexDirection: 'row', gap: 20, alignItems: 'center' }}>
-                  <View style={{ gap: 4 }}>
+                  <View style={{ gap: 4, flex: 1 }}>
                     <Text style={{ fontSize: 11, color: colors.secondaryText, textAlign: 'center', marginBottom: 4 }}>{t('hour')}</Text>
-                    <ScrollView style={{ height: 120 }} nestedScrollEnabled showsVerticalScrollIndicator={false}>
+                    <ScrollView style={{ height: 150 }} nestedScrollEnabled showsVerticalScrollIndicator={false}>
                       {HOURS.map((h) => (
                         <Pressable
                           key={h}
@@ -435,14 +447,14 @@ export default function EditHabitScreen() {
                           }}
                         >
                           <Text style={{ fontSize: 16, fontWeight: reminderHour === h ? '700' : '400', color: reminderHour === h ? '#FFFFFF' : colors.text }}>
-                            {h}
+                            {String(h).padStart(2, '0')}
                           </Text>
                         </Pressable>
                       ))}
                     </ScrollView>
                   </View>
                   <Text style={{ fontSize: 24, fontWeight: '700', color: colors.text }}>:</Text>
-                  <View style={{ gap: 4 }}>
+                  <View style={{ gap: 4, flex: 1 }}>
                     <Text style={{ fontSize: 11, color: colors.secondaryText, textAlign: 'center', marginBottom: 4 }}>{t('min')}</Text>
                     <ScrollView style={{ height: 150 }} nestedScrollEnabled showsVerticalScrollIndicator={false}>
                       {MINUTES.map((m) => (
@@ -462,25 +474,12 @@ export default function EditHabitScreen() {
                       ))}
                     </ScrollView>
                   </View>
-                  <View style={{ gap: 4 }}>
-                    <Text style={{ fontSize: 11, color: colors.secondaryText, textAlign: 'center', marginBottom: 4 }}>{t('period')}</Text>
-                    {(['AM', 'PM'] as const).map((p) => (
-                      <Pressable
-                        key={p}
-                        onPress={() => setReminderPeriod(p)}
-                        style={{
-                          paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8,
-                          backgroundColor: reminderPeriod === p ? '#10B981' : colors.surfaceSoft,
-                          alignItems: 'center',
-                        }}
-                      >
-                        <Text style={{ fontSize: 14, fontWeight: reminderPeriod === p ? '700' : '400', color: reminderPeriod === p ? '#FFFFFF' : colors.text }}>
-                          {p}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </View>
                 </View>
+                <Pressable onPress={() => openExactAlarmSettings()}>
+                  <Text style={{ fontSize: 11, color: colors.secondaryText, marginTop: 12, lineHeight: 15 }}>
+                    {t('exactAlarmHint')}
+                  </Text>
+                </Pressable>
               </View>
             )}
           </View>

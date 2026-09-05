@@ -12,6 +12,8 @@ import { FAB } from '@/components/FAB';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useTranslation } from '@/hooks/use-translation';
 import { getDayLabel, getMonthLabel } from '@/lib/i18n';
+import { getRemindersForHabit } from '@/lib/database';
+import { cancelReminder, repairOrphanedReminders } from '@/lib/notifications';
 
 const CATEGORY_ICONS: Record<string, React.ComponentType<any>> = {
   Health: Heart, Mind: Brain, Focus: Zap, Fitness: Dumbbell,
@@ -47,6 +49,8 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       refresh(db);
+      // ponytail: sekali jalan — beresin ghost/duplikat notif legacy, no-op kalau udah beres
+      repairOrphanedReminders(db).catch(() => {});
     }, [db, refresh])
   );
 
@@ -57,7 +61,16 @@ export default function HomeScreen() {
   }, [db, refresh]);
 
   const handleToggle = useCallback((id: number) => toggleCheckin(db, id), [db, toggleCheckin]);
-  const handleDelete = useCallback((id: number) => deleteHabit(db, id), [db, deleteHabit]);
+  // ponytail: hapus habit = cancel notifnya dulu biar nggak jadi ghost harian
+  const handleDelete = useCallback(async (id: number) => {
+    try {
+      const reminders = await getRemindersForHabit(db, id);
+      for (const r of reminders) {
+        if (r.notification_id) await cancelReminder(r.notification_id);
+      }
+    } catch {}
+    await deleteHabit(db, id);
+  }, [db, deleteHabit]);
   const handleEdit = useCallback((id: number) => router.push({ pathname: '/edit-habit', params: { id: String(id) } }), [router]);
   const handleDetail = useCallback((id: number) => router.push({ pathname: '/habit-detail', params: { id: String(id) } }), [router]);
 

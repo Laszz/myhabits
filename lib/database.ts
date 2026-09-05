@@ -1,7 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 
 const DATABASE_NAME = 'habits.db';
-const DATABASE_VERSION = 2;
+const DATABASE_VERSION = 3;
 
 export interface Habit {
   id: number;
@@ -35,6 +35,7 @@ export interface Reminder {
   habit_id: number;
   time: string;
   enabled: number;
+  notification_id: string | null;
 }
 
 export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
@@ -82,6 +83,12 @@ export async function migrateDbIfNeeded(db: SQLite.SQLiteDatabase): Promise<void
   if (currentVersion < 2) {
     try {
       await db.execAsync(`ALTER TABLE habits ADD COLUMN frequency TEXT NOT NULL DEFAULT 'every_day'`);
+    } catch {}
+  }
+
+  if (currentVersion < 3) {
+    try {
+      await db.execAsync(`ALTER TABLE reminders ADD COLUMN notification_id TEXT`);
     } catch {}
   }
 
@@ -181,6 +188,31 @@ export async function getRemindersForHabit(db: SQLite.SQLiteDatabase, habitId: n
 
 export async function deleteReminder(db: SQLite.SQLiteDatabase, id: number): Promise<void> {
   await db.runAsync('DELETE FROM reminders WHERE id = ?', id);
+}
+
+export async function updateReminderNotificationId(
+  db: SQLite.SQLiteDatabase,
+  reminderId: number,
+  notificationId: string | null
+): Promise<void> {
+  await db.runAsync('UPDATE reminders SET notification_id = ? WHERE id = ?', notificationId, reminderId);
+}
+
+// ponytail: repair ghosts — reminder yg belum punya notification_id (legacy/duplikat)
+export async function getRemindersWithoutNotifId(db: SQLite.SQLiteDatabase): Promise<(Reminder & { title: string })[]> {
+  return db.getAllAsync<Reminder & { title: string }>(
+    `SELECT r.*, h.title FROM reminders r
+     INNER JOIN habits h ON h.id = r.habit_id
+     WHERE r.enabled = 1 AND h.is_active = 1 AND r.notification_id IS NULL`
+  );
+}
+
+export async function getAllEnabledReminders(db: SQLite.SQLiteDatabase): Promise<(Reminder & { title: string })[]> {
+  return db.getAllAsync<Reminder & { title: string }>(
+    `SELECT r.*, h.title FROM reminders r
+     INNER JOIN habits h ON h.id = r.habit_id
+     WHERE r.enabled = 1 AND h.is_active = 1`
+  );
 }
 
 export async function getCheckinsForDate(db: SQLite.SQLiteDatabase, date: string): Promise<HabitLog[]> {

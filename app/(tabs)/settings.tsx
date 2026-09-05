@@ -7,6 +7,7 @@ import { useLanguageStore } from '@/lib/language-store';
 import { useHabitStore } from '@/lib/store';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useTranslation } from '@/hooks/use-translation';
+import { cancelAllReminders } from '@/lib/notifications';
 import { type Language } from '@/lib/i18n';
 
 const LANGUAGES: { key: Language; label: string }[] = [
@@ -28,6 +29,7 @@ export default function SettingsScreen() {
       {
         text: t('delete'), style: 'destructive',
         onPress: async () => {
+          await cancelAllReminders();
           await db.execAsync('DELETE FROM habit_logs; DELETE FROM habits; DELETE FROM reminders;');
           await refresh(db);
           Alert.alert(t('done'), t('clearAllDataDone'));
