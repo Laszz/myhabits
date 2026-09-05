@@ -5,6 +5,10 @@
 </p>
 
 <p align="center">
+  <img src="./assets/images/icon.png" width="120" alt="SaveUp Logo">
+</p>
+
+<p align="center">
   Aplikasi mobile untuk membantu pengguna membangun kebiasaan,
   memantau progress, dan menjaga konsistensi melalui habit streak.
 </p>
@@ -63,15 +67,15 @@ Versi APK terbaru dapat diunduh melalui MediaFire:
 ## Screenshots
 
 <p align="center">
-  <img src="./assets/screenshots/01-history.jpg" width="220" alt="MyHabits History">
+  <img src="./assets/screenshots/history.jpg" width="220" alt="MyHabits History">
   &nbsp;&nbsp;&nbsp;
-  <img src="./assets/screenshots/02-home.jpg" width="220" alt="MyHabits Home">
+  <img src="./assets/screenshots/home.jpg" width="220" alt="MyHabits Home">
 </p>
 
 <p align="center">
-  <img src="./assets/screenshots/03-setting.jpg" width="220" alt="MyHabits Settings">
+  <img src="./assets/screenshots/setting.jpg" width="220" alt="MyHabits Settings">
   &nbsp;&nbsp;&nbsp;
-  <img src="./assets/screenshots/04-statistik.jpg" width="220" alt="MyHabits Statistics">
+  <img src="./assets/screenshots/statistik.jpg" width="220" alt="MyHabits Statistics">
 </p>
 
 ---
