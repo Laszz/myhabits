@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="./assets/images/icon.png" width="120" alt="SaveUp Logo">
+  <img src="./assets/images/android-icon-foreground.png" width="120" alt="SaveUp Logo">
 </p>
 
 <p align="center">
