@@ -1,50 +1,103 @@
-# Welcome to your Expo app 👋
+# MyHabits 🌱
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+<p align="center">
+  <strong>Habit Tracking & Streak App</strong>
+</p>
 
-## Get started
+<p align="center">
+  Aplikasi mobile untuk membantu pengguna membangun kebiasaan,
+  memantau progress, dan menjaga konsistensi melalui habit streak.
+</p>
 
-1. Install dependencies
+## Download
 
-   ```bash
-   npm install
-   ```
+Versi APK terbaru dapat diunduh melalui MediaFire:
 
-2. Start the app
+<p align="center">
 
-   ```bash
-   npx expo start
-   ```
+**[⬇️ Download MyHabits APK](https://www.mediafire.com/file/sx4mh5ddvq3isaw/MyHabits.apk/file)**
 
-In the output, you'll find options to open the app in a
+</p>
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+> Saat ini MyHabits ditujukan untuk perangkat Android.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
+## Fitur
 
-When you're ready, run:
+### Home
 
-```bash
-npm run reset-project
-```
+- Melihat progress kebiasaan hari ini
+- Menampilkan persentase penyelesaian harian
+- Melihat daftar habit berdasarkan kategori
+- Kategori habit seperti Learning, Fitness, dan Health
+- Check-in habit secara langsung
+- Menampilkan progress harian setiap habit
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### History
 
-## Learn more
+- Melihat riwayat penyelesaian habit
+- Menampilkan current streak
+- Menampilkan best streak
+- Menampilkan total completions
+- Visualisasi aktivitas habit selama beberapa bulan
+- Melihat recent completions
 
-To learn more about developing your project with Expo, look at the following resources:
+### Statistics
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- Melihat total check-ins
+- Melihat current streak
+- Melihat best streak
+- Melihat completion rate
+- Statistik berdasarkan masing-masing habit
 
-## Join the community
+### Settings
 
-Join our community of developers creating universal apps.
+- Mengubah tema Light / Dark
+- Mengubah bahasa English / Bahasa Indonesia
+- Menghapus seluruh data aplikasi
+- Melihat informasi versi aplikasi
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+
+## Screenshots
+
+<p align="center">
+  <img src="./assets/screenshots/01-history.jpg" width="220" alt="MyHabits History">
+  &nbsp;&nbsp;&nbsp;
+  <img src="./assets/screenshots/02-home.jpg" width="220" alt="MyHabits Home">
+</p>
+
+<p align="center">
+  <img src="./assets/screenshots/03-setting.jpg" width="220" alt="MyHabits Settings">
+  &nbsp;&nbsp;&nbsp;
+  <img src="./assets/screenshots/04-statistik.jpg" width="220" alt="MyHabits Statistics">
+</p>
+
+---
+
+## Design
+
+MyHabits menggunakan desain yang:
+
+- Minimalis
+- Clean
+- Modern
+- Mudah digunakan
+- Fokus pada progress dan konsistensi habit
+- Mendukung Light Mode dan Dark Mode
+
+Warna aksen utama menggunakan nuansa hijau untuk memberikan kesan growth, consistency, dan progress.
+
+---
+
+## Tech Stack
+
+- **React Native**
+- **Expo**
+- **Expo Router**
+- **TypeScript**
+- **JavaScript**
+- **Android**
+
+---
